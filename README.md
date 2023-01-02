@@ -47,7 +47,7 @@ SECRET_KEY='todolist'
 DEBUG=True
 ```
 
-### 4. Запустить образ Docker из директории market_postgres
+### 4. Запустить образ Docker из корня проекта
 ```sh
 docker-compose up --build -d 
 ```
