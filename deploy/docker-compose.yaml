@@ -24,6 +24,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    environment:
+      DB_HOST: postgres
 #    volumes:
 #      - ./todolist/:/app/todolist
 #      - ./core/:/app/core
