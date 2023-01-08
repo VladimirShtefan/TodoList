@@ -47,7 +47,7 @@ SECRET_KEY='todolist'
 DEBUG=True
 ```
 
-### 4. Запустить образ Docker из директории market_postgres
+### 4. Запустить образ Docker из корня проекта.
 ```sh
 docker-compose up --build -d 
 ```
@@ -57,13 +57,12 @@ docker-compose up --build -d
 ./manage.py migrate 
 ```
 
-### 6. Загрузить тестовые данные в базу из csv
-```sh
- ./manage.py loadall
-```
-
-### 7. Запустить сервер
+### 6. Запустить сервер.
 ```sh
 ./manage.py runserver 0.0.0.0:8000  
 ```
 
+### 7. Для локального запуска всех образов, выполнить из корня проекта.
+```sh
+docker-compose up 
+```

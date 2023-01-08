@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:14.6-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    healthcheck:
+      test: pg_isready -U ${DB_USER} -d ${DB_NAME}
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: emotzart/diplom-work:latest
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+#    volumes:
+#      - ./todolist/:/app/todolist
+#      - ./core/:/app/core
+
+  collect_static:
+    image: emotzart/diplom-work:latest
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_started
+    command: python3 manage.py collectstatic -c --no-input
+    volumes:
+      - django_static:/app/static
+
+
+  front:
+    image: sermalenk/skypro-front:lesson-34
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      api:
+        condition: service_started
+      collect_static:
+        condition: service_completed_successfully
+    volumes:
+      - django_static:/usr/share/nginx/html/static
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+
+volumes:
+ postgres_data:
+ django_static:
