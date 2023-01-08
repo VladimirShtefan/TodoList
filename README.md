@@ -57,12 +57,7 @@ docker-compose up --build -d
 ./manage.py migrate 
 ```
 
-### 6. Загрузить тестовые данные в базу из csv
-```sh
- ./manage.py loadall
-```
-
-### 7. Запустить сервер
+### 6. Запустить сервер
 ```sh
 ./manage.py runserver 0.0.0.0:8000  
 ```
