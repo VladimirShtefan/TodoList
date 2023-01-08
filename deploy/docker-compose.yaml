@@ -17,7 +17,7 @@ services:
       retries: 5
 
   api:
-    image: emotzart/diplom-work:latest
+    image: ${DOCKER_HUB_USERNAME}/diplom:latest
     restart: always
     env_file:
       - .env
@@ -29,7 +29,7 @@ services:
 #      - ./core/:/app/core
 
   collect_static:
-    image: emotzart/diplom-work:latest
+    image: ${DOCKER_HUB_USERNAME}/diplom:latest
     env_file:
       - .env
     depends_on:
