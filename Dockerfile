@@ -14,4 +14,5 @@ RUN poetry config virtualenvs.create false \
 COPY . .
 
 ENTRYPOINT ["bash", "entrypoint.sh"]
-CMD ["gunicorn", "todolist.wsgi", "-w", "4", "-b", "0.0.0.0:8000"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+#CMD ["gunicorn", "todolist.wsgi", "-w", "4", "-b", "0.0.0.0:8000"]

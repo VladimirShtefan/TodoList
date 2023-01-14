@@ -9,6 +9,8 @@ static/
 # Distribution / packaging
 .Python
 build/
+cert.pem
+key.pem
 develop-eggs/
 dist/
 downloads/
