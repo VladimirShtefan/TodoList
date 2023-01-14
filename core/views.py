@@ -2,10 +2,12 @@ from django.contrib.auth import login
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from core.serializers import UserCreateSerializer, UserLoginSerializer
+from core.models import User
+from core.serializers import UserCreateSerializer, UserLoginSerializer, UserProfileSerializer
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -25,3 +27,13 @@ class UserLoginView(CreateAPIView):
 
     def perform_create(self, serializer):
         login(self.request, user=serializer.save())
+
+
+class UserProfileView(RetrieveUpdateAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserProfileSerializer
+    queryset = User.objects.all()
+
+    def get_object(self):
+        return self.request.user
+
