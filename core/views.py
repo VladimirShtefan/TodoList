@@ -2,12 +2,12 @@ from django.contrib.auth import login, logout
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from core.models import User
-from core.serializers import UserCreateSerializer, UserLoginSerializer, UserProfileSerializer
+from core.serializers import UserCreateSerializer, UserLoginSerializer, UserProfileSerializer, \
+    UserUpdatePasswordSerializer
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -33,10 +33,18 @@ class UserLoginView(CreateAPIView):
 
 class UserProfileView(RetrieveUpdateDestroyAPIView):
     serializer_class = UserProfileSerializer
-    queryset = User.objects.all()
 
     def get_object(self):
         return self.request.user
 
     def perform_destroy(self, instance):
         logout(self.request)
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class UserUpdatePasswordView(UpdateAPIView):
+    serializer_class = UserUpdatePasswordSerializer
+
+    def get_object(self):
+        return self.request.user
+

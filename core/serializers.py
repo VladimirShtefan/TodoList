@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import AuthenticationFailed, ValidationError
 
 from core.models import User
 
@@ -56,3 +56,25 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'first_name', 'last_name', 'email')
+
+
+class UserUpdatePasswordSerializer(serializers.ModelSerializer):
+    old_password = serializers.CharField(required=True, write_only=True)
+    new_password = serializers.CharField(required=True, write_only=True)
+
+    def validate_old_password(self, old_password):
+        if not self.instance.check_password(old_password):
+            raise ValidationError('Пароль не верный')
+        return old_password
+
+    def validate_new_password(self, new_password):
+        validate_password(new_password)
+        return new_password
+
+    def update(self, instance: User, validated_data):
+        instance.set_password(validated_data['new_password'])
+        return super().update(instance, validated_data)
+
+    class Meta:
+        model = User
+        fields = ('old_password', 'new_password')
