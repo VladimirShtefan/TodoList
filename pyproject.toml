@@ -16,6 +16,7 @@ djangorestframework = "^3.14.0"
 drf-spectacular = "^0.25.1"
 django-phonenumber-field = "^7.0.2"
 phonenumbers = "^8.13.4"
+social-auth-app-django = "^5.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
