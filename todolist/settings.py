@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'goals.apps.GoalsConfig',
     'social_django',
-    "phonenumber_field",
+    'django_filters',
     'drf_spectacular',
 ]
 
@@ -100,7 +100,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
-    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework.authentication.SessionAuthentication',)
+    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework.authentication.SessionAuthentication',),
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
 }
 
 
