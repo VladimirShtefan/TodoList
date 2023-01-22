@@ -30,9 +30,10 @@ services:
         condition: service_healthy
     ports:
       - "8000:8000"
-#    volumes:
-#      - ./todolist/:/app/todolist
-#      - ./core/:/app/core
+    volumes:
+      - ./todolist/:/app/todolist/
+      - ./core/:/app/core/
+      - ./goals/:/app/goals/
 
   collect_static:
     build: .
