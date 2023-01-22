@@ -2,7 +2,7 @@ import django_filters
 from django.db.models import DateField
 from django_filters.rest_framework import FilterSet
 
-from goals.models import Goal
+from goals.models import Goal, GoalComment
 
 
 class GoalFilter(FilterSet):
@@ -16,4 +16,12 @@ class GoalFilter(FilterSet):
 
         filter_overrides = {
             DateField: {"filter_class": django_filters.IsoDateTimeFilter},
+        }
+
+
+class CommentGoalFilter(FilterSet):
+    class Meta:
+        model = GoalComment
+        fields = {
+            "goal": ("exact",)
         }

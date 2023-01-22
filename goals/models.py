@@ -49,3 +49,18 @@ class Goal(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class GoalComment(models.Model):
+    user = models.ForeignKey(User, verbose_name=_('Автор'), on_delete=models.PROTECT, related_name='comment')
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    text = models.TextField(verbose_name=_('Текст'))
+    goal = models.ForeignKey(Goal, verbose_name=_('Цель'), on_delete=models.CASCADE, related_name='goal_comment')
+
+    class Meta:
+        verbose_name = _('Комментарий')
+        verbose_name_plural = _('Комментарии')
+
+    def __str__(self):
+        return self.text
