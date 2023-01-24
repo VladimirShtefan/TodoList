@@ -55,7 +55,6 @@ services:
     restart: always
     ports:
       - "80:80"
-#      - "443:443"
     depends_on:
       api:
         condition: service_started
@@ -64,8 +63,6 @@ services:
     volumes:
       - django_static:/usr/share/nginx/html/static
       - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf
-#      - ./key.pem:/root/ssl/key.pem
-#      - ./cert.pem:/root/ssl/cert.pem
 
 volumes:
   postgres_data:

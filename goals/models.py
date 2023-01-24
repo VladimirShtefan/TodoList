@@ -4,12 +4,15 @@ from django.utils.translation import gettext_lazy as _
 from core.models import User
 
 
-class GoalCategory(models.Model):
+class CreateUpdateModel(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+
+class GoalCategory(CreateUpdateModel):
     title = models.CharField(verbose_name=_('Название'), max_length=255)
     user = models.ForeignKey(User, verbose_name=_('Автор'), on_delete=models.PROTECT, related_name='goal_category')
     is_deleted = models.BooleanField(verbose_name=_('Удалена'), default=False)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = _('Категория')
@@ -19,7 +22,7 @@ class GoalCategory(models.Model):
         return self.title
 
 
-class Goal(models.Model):
+class Goal(CreateUpdateModel):
     class Status(models.IntegerChoices):
         to_do = 1, 'К выполнению'
         in_progress = 2, 'В процессе'
@@ -33,8 +36,6 @@ class Goal(models.Model):
         critical = 4, "Критический"
 
     user = models.ForeignKey(User, verbose_name=_('Автор'), on_delete=models.PROTECT, related_name='goal')
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
     title = models.CharField(verbose_name=_('Название'), max_length=255)
     description = models.TextField(verbose_name=_('Описание'), null=True, blank=True)
     due_date = models.DateField(verbose_name=_('Дата выполнения'), null=True, blank=True)
@@ -51,10 +52,8 @@ class Goal(models.Model):
         return self.title
 
 
-class GoalComment(models.Model):
+class GoalComment(CreateUpdateModel):
     user = models.ForeignKey(User, verbose_name=_('Автор'), on_delete=models.PROTECT, related_name='comment')
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
     text = models.TextField(verbose_name=_('Текст'))
     goal = models.ForeignKey(Goal, verbose_name=_('Цель'), on_delete=models.CASCADE, related_name='goal_comment')
 

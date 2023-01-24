@@ -26,9 +26,6 @@ services:
         condition: service_healthy
     environment:
       DB_HOST: postgres
-#    volumes:
-#      - ./todolist/:/app/todolist
-#      - ./core/:/app/core
 
   collect_static:
     image: ${DOCKER_HUB_USERNAME}/diplom:latest

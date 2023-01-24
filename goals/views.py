@@ -1,7 +1,5 @@
 from django.db import transaction
 from django.db.models import Q
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
@@ -13,7 +11,6 @@ from goals.serializers import GoalCategoryCreateSerializer, GoalCategorySerializ
     GoalSerializer, GoalCommentCreateSerializer, GoalCommentSerializer
 
 
-@method_decorator(csrf_exempt, name="dispatch")
 class CreateGoalsCategoryView(CreateAPIView):
     queryset = GoalCategory.objects.all()
     serializer_class = GoalCategoryCreateSerializer
@@ -50,7 +47,6 @@ class GoalCategoryView(RetrieveUpdateDestroyAPIView):
         return instance
 
 
-@method_decorator(csrf_exempt, name="dispatch")
 class CreateGoalView(CreateAPIView):
     queryset = Goal.objects.all()
     serializer_class = GoalCreateSerializer
@@ -83,7 +79,6 @@ class GoalView(RetrieveUpdateDestroyAPIView):
         )
 
 
-@method_decorator(csrf_exempt, name="dispatch")
 class CreateCommentView(CreateAPIView):
     queryset = GoalComment.objects.all()
     serializer_class = GoalCommentCreateSerializer
