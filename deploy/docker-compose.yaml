@@ -42,7 +42,7 @@ services:
 
 
   front:
-    image: sermalenk/skypro-front:lesson-35
+    image: sermalenk/skypro-front:lesson-37
     restart: always
     ports:
       - "80:80"

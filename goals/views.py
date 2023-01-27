@@ -4,11 +4,13 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
 
 from goals.filters import GoalFilter, CommentGoalFilter
-from goals.models import GoalCategory, Goal, GoalComment
+from goals.models import GoalCategory, Goal, GoalComment, Board
+from goals.permissions import BoardPermissions
 from goals.serializers import GoalCategoryCreateSerializer, GoalCategorySerializer, GoalCreateSerializer, \
-    GoalSerializer, GoalCommentCreateSerializer, GoalCommentSerializer
+    GoalSerializer, GoalCommentCreateSerializer, GoalCommentSerializer, BoardCreateSerializer, BoardSerializer
 
 
 class CreateGoalsCategoryView(CreateAPIView):
@@ -114,3 +116,45 @@ class CommentView(RetrieveUpdateDestroyAPIView):
             & ~Q(goal__status=Goal.Status.archived)
             & Q(goal__category__is_deleted=False)
         )
+
+
+class CreateBoardView(CreateAPIView):
+    queryset = Board.objects.all()
+    serializer_class = BoardCreateSerializer
+
+
+class BoardsListView(ListAPIView):
+    queryset = Board.objects.all()
+    serializer_class = BoardSerializer
+    pagination_class = LimitOffsetPagination
+    filter_backends = [
+        OrderingFilter,
+    ]
+    ordering_fields = ('title', )
+    ordering = ('title', )
+
+    def get_queryset(self):
+        return Board.objects.filter(
+            Q(is_deleted=False) & Q(participants__user=self.request.user)
+        )
+
+
+class BoardView(RetrieveUpdateDestroyAPIView):
+    queryset = Board.objects.all()
+    serializer_class = BoardSerializer
+    permission_classes = (BoardPermissions, IsAuthenticated)
+
+    def get_queryset(self):
+        return Board.objects.filter(
+            Q(is_deleted=False) & Q(participants__user=self.request.user)
+        )
+
+    def perform_destroy(self, instance: Board):
+        with transaction.atomic():
+            instance.is_deleted = True
+            instance.save()
+            instance.goal_category.update(is_deleted=True)
+            Goal.objects.filter(category__board=instance).update(
+                status=Goal.Status.archived
+            )
+        return instance
