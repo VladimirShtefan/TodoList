@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from goals.filters import GoalFilter, CommentGoalFilter
 from goals.models import GoalCategory, Goal, GoalComment, Board
-from goals.permissions import BoardPermissions, GoalPermissions
+from goals.permissions import BoardPermissions, GoalCategoryPermissions, GoalPermissions, GoalCommentPermissions
 from goals.serializers import GoalCategoryCreateSerializer, GoalCategorySerializer, GoalCreateSerializer, \
     GoalSerializer, GoalCommentCreateSerializer, GoalCommentSerializer, BoardCreateSerializer, BoardSerializer
 
@@ -17,7 +17,7 @@ from goals.serializers import GoalCategoryCreateSerializer, GoalCategorySerializ
 class CreateGoalsCategoryView(CreateAPIView):
     queryset = GoalCategory.objects.all()
     serializer_class = GoalCategoryCreateSerializer
-    permission_classes = (GoalPermissions, IsAuthenticated)
+    permission_classes = (GoalCategoryPermissions, IsAuthenticated)
 
 
 class GoalCategoryListView(ListAPIView):
@@ -44,7 +44,7 @@ class GoalCategoryListView(ListAPIView):
 class GoalCategoryView(RetrieveUpdateDestroyAPIView):
     queryset = GoalCategory.objects.all()
     serializer_class = GoalCategorySerializer
-    permission_classes = (GoalPermissions, IsAuthenticated)
+    permission_classes = (GoalCategoryPermissions, IsAuthenticated)
 
     def get_queryset(self):
         return GoalCategory.objects.prefetch_related('board__participants__user').filter(
@@ -64,6 +64,7 @@ class GoalCategoryView(RetrieveUpdateDestroyAPIView):
 class CreateGoalView(CreateAPIView):
     queryset = Goal.objects.all()
     serializer_class = GoalCreateSerializer
+    permission_classes = (GoalPermissions, IsAuthenticated)
 
 
 class GoalsListView(ListAPIView):
@@ -78,18 +79,24 @@ class GoalsListView(ListAPIView):
     search_fields = ('title', 'description')
 
     def get_queryset(self):
+        print(1)
         return Goal.objects.prefetch_related('category').filter(
-            Q(user_id=self.request.user.id) & ~Q(status=Goal.Status.archived) & Q(category__is_deleted=False)
+            Q(category__board__participants__user_id=self.request.user.id) &
+            ~Q(status=Goal.Status.archived) &
+            Q(category__is_deleted=False)
         )
 
 
 class GoalView(RetrieveUpdateDestroyAPIView):
     queryset = Goal.objects.all()
     serializer_class = GoalSerializer
+    permission_classes = (GoalPermissions, IsAuthenticated)
 
     def get_queryset(self):
         return Goal.objects.prefetch_related('category').filter(
-            Q(user_id=self.request.user.id) & ~Q(status=Goal.Status.archived) & Q(category__is_deleted=False)
+            Q(category__board__participants__user_id=self.request.user.id) &
+            ~Q(status=Goal.Status.archived) &
+            Q(category__is_deleted=False)
         )
 
 
@@ -97,6 +104,7 @@ class GoalView(RetrieveUpdateDestroyAPIView):
 class CreateCommentView(CreateAPIView):
     queryset = GoalComment.objects.all()
     serializer_class = GoalCommentCreateSerializer
+    permission_classes = (GoalCommentPermissions, IsAuthenticated)
 
 
 class CommentsListView(ListAPIView):
@@ -113,7 +121,7 @@ class CommentsListView(ListAPIView):
 
     def get_queryset(self):
         return GoalComment.objects.prefetch_related('goal').filter(
-            Q(user=self.request.user)
+            Q(goal__category__board__participants__user_id=self.request.user.id)
             & ~Q(goal__status=Goal.Status.archived)
             & Q(goal__category__is_deleted=False)
         )
@@ -122,10 +130,11 @@ class CommentsListView(ListAPIView):
 class CommentView(RetrieveUpdateDestroyAPIView):
     queryset = GoalComment.objects.all()
     serializer_class = GoalCommentSerializer
+    permission_classes = (GoalCommentPermissions, IsAuthenticated)
 
     def get_queryset(self):
         return GoalComment.objects.prefetch_related('goal').filter(
-            Q(user=self.request.user)
+            Q(goal__category__board__participants__user_id=self.request.user.id)
             & ~Q(goal__status=Goal.Status.archived)
             & Q(goal__category__is_deleted=False)
         )

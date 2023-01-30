@@ -10,6 +10,10 @@ from core.models import User
 class GoalCategoryCreateSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
+    def validate_board(self, board: Board):
+        if board.is_deleted:
+            raise ValidationError('Нельзя создать категорию для доски в архиве')
+
     class Meta:
         model = GoalCategory
         fields = '__all__'
@@ -29,11 +33,15 @@ class GoalCategorySerializer(serializers.ModelSerializer):
 class GoalCreateSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
-    def validate_category(self, category):
+    def validate_category(self, category: GoalCategory):
         if category.is_deleted:
             raise ValidationError('Нельзя создать цель для категории в архиве')
-        if self.context['request'].user != category.user:
-            raise ValidationError('Вы не являетесь владельцем данной категории')
+        if not BoardParticipant.objects.filter(
+            role__in=(BoardParticipant.Role.owner, BoardParticipant.Role.writer),
+            board_id=category.board_id,
+            user_id=self.context['request'].user.id
+        ):
+            raise ValidationError('У вас нет доступа для создания целей в данной категории')
         return category
 
     class Meta:
@@ -53,6 +61,17 @@ class GoalSerializer(serializers.ModelSerializer):
 
 class GoalCommentCreateSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    def validate_goal(self, goal: Goal):
+        if goal.category.is_deleted:
+            raise ValidationError('Нельзя создать комментарий для категории в архиве')
+        if not BoardParticipant.objects.filter(
+            role__in=(BoardParticipant.Role.owner, BoardParticipant.Role.writer),
+            board_id=goal.category.board_id,
+            user_id=self.context['request'].user.id
+        ):
+            raise ValidationError('У вас нет доступа для создания комментариев для данной цели')
+        return goal
 
     class Meta:
         model = GoalComment
