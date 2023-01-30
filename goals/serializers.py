@@ -13,6 +13,13 @@ class GoalCategoryCreateSerializer(serializers.ModelSerializer):
     def validate_board(self, board: Board):
         if board.is_deleted:
             raise ValidationError('Нельзя создать категорию для доски в архиве')
+        if not BoardParticipant.objects.filter(
+            role__in=(BoardParticipant.Role.owner, BoardParticipant.Role.writer),
+            board_id=board.id,
+            user_id=self.context['request'].user.id
+        ):
+            raise ValidationError('У вас нет доступа для создания категорий в данной доске')
+        return board
 
     class Meta:
         model = GoalCategory
