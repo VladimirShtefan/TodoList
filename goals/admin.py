@@ -23,6 +23,12 @@ class GoalCommentAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'updated')
 
 
+class BoardAdmin(admin.ModelAdmin):
+    list_display = ("text", "user", 'goal')
+    list_filter = ("created", "updated")
+    readonly_fields = ('created', 'updated')
+
+
 admin.site.register(GoalCategory, GoalCategoryAdmin)
 admin.site.register(Goal, GoalAdmin)
 admin.site.register(GoalComment, GoalCommentAdmin)

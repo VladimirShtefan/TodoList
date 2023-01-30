@@ -45,11 +45,14 @@ EMAIL_HOST_PASSWORD=todolist
 EMAIL_PORT=587
 SECRET_KEY='todolist'
 DEBUG=True
+DOCKER_HUB_USERNAME=todolist
+OAUTH2_KEY=111111
+OAUTH2_SECRET=1111111
 ```
 
-### 4. Запустить образ Docker из корня проекта.
+### 4. Запустить образ postgres из корня проекта.
 ```sh
-docker-compose up --build -d 
+docker-compose up postgres
 ```
 
 ### 5. Выполнить миграции.
@@ -64,5 +67,5 @@ docker-compose up --build -d
 
 ### 7. Для локального запуска всех образов, выполнить из корня проекта.
 ```sh
-docker-compose up 
+docker-compose up --build -d
 ```

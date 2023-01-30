@@ -18,6 +18,7 @@ class GoalCategoryCreateSerializer(serializers.ModelSerializer):
 
 class GoalCategorySerializer(serializers.ModelSerializer):
     user = UserProfileSerializer(read_only=True)
+    board = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = GoalCategory
@@ -75,7 +76,7 @@ class BoardCreateSerializer(serializers.ModelSerializer):
         with transaction.atomic():
             user = validated_data.pop('user')
             board = Board.objects.create(**validated_data)
-            BoardParticipant.objects.create(user=user, role=BoardParticipant.Role.owner, board=board)
+            BoardParticipant.objects.create(user_id=user.id, role=BoardParticipant.Role.owner, board_id=board.id)
         return board
 
     class Meta:
@@ -86,7 +87,7 @@ class BoardCreateSerializer(serializers.ModelSerializer):
 
 class BoardParticipantSerializer(serializers.ModelSerializer):
     role = serializers.ChoiceField(
-        required=True, choices=BoardParticipant.Role
+        required=True, choices=BoardParticipant.Role.choices[1:]
     )
     user = serializers.SlugRelatedField(
         slug_field='username', queryset=User.objects.all()
@@ -113,28 +114,28 @@ class BoardSerializer(serializers.ModelSerializer):
         participants = validated_data.pop('participants')
         actual_participants: QuerySet[BoardParticipant] = instance.participants.exclude(user=owner)
         new_participants_data: dict = {participant['user'].id: participant for participant in participants}
+        with transaction.atomic():
+            for participant in actual_participants:
+                participant_id = participant.user.id
+                participant_role = participant.role
 
-        for participant in actual_participants:
-            participant_id = participant.user.id
-            participant_role = participant.role
-
-            if participant_id not in new_participants_data:
-                participant.delete()
-            elif participant_role != new_participants_data[participant_id]['role']:
-                participant.role = new_participants_data[participant_id]['role']
-                participant.save()
-            else:
+                if participant_id not in new_participants_data:
+                    participant.delete()
+                elif participant_role != new_participants_data[participant_id]['role']:
+                    participant.role = new_participants_data[participant_id]['role']
+                    participant.save()
                 del new_participants_data[participant_id]
 
-        for participant_object in new_participants_data.values():
-            BoardParticipant.objects.create(
-                board=instance,
-                user=participant_object['user'],
-                role=participant_object['role']
-            )
+            for participant_object in new_participants_data.values():
+                BoardParticipant.objects.create(
+                    board=instance,
+                    user=participant_object['user'],
+                    role=participant_object['role']
+                )
 
-        instance.title = validated_data['title']
-        instance.save()
+            if title := validated_data.get('title'):
+                instance.title = title
+                instance.save()
         return instance
 
     class Meta:
