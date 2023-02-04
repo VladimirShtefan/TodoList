@@ -1,3 +1,5 @@
+import os
+
 from django.core.management.base import BaseCommand
 
 from bot.models import TgUser
@@ -13,7 +15,14 @@ class Command(BaseCommand):
         self.tg_client = TgClient(TOKEN_TELEGRAM_BOT)
         self.tg_user = TgUser
 
-    def check_user(self, username, chat_id):
+    @staticmethod
+    def _get_verification_code() -> hex:
+        return os.urandom(16).hex()
+
+    def _add_verification_code(self, chat_id, username, verification_code: hex) -> None:
+        self.tg_user.objects.filter(tg_id=chat_id, username=username).update(verification_code=verification_code)
+
+    def _check_user(self, username: str, chat_id: int) -> int | None:
         tg_user, _ = self.tg_user.objects.get_or_create(tg_id=chat_id, username=username)
         return tg_user.user_id
 
@@ -26,6 +35,13 @@ class Command(BaseCommand):
                 offset = item.update_id + 1
                 chat_id = item.message.chat.id
                 username = item.message.from_.username
-                if self.check_user(username, chat_id):
+                if self._check_user(username, chat_id):
                     self.tg_client.send_message(chat_id=chat_id, text=f'Привет {username}')
-                self.tg_client.send_message(chat_id=chat_id, text='Привет давай знакомиться')
+                else:
+                    verification_code = self._get_verification_code()
+                    self.tg_client.send_message(chat_id=chat_id, text=f'Подтвердите, пожалуйста, свой аккаунт. '
+                                                                      f'Для подтверждения необходимо ввести код: '
+                                                                      f'{verification_code} '
+                                                                      f'на сайте vshtefan.ga')
+                    self._add_verification_code(chat_id, username, verification_code)
+
