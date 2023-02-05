@@ -79,7 +79,6 @@ class GoalsListView(ListAPIView):
     search_fields = ('title', 'description')
 
     def get_queryset(self):
-        print(1)
         return Goal.objects.prefetch_related('category').filter(
             Q(category__board__participants__user_id=self.request.user.id) &
             ~Q(status=Goal.Status.archived) &

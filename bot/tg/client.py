@@ -23,7 +23,7 @@ class TgClient:
         except ValidationError:
             logger.error(f'Пришли не валидные данные: {data}')
 
-    def send_message(self, chat_id: int, text: str) -> SendMessageResponse:
+    def send_message(self, chat_id: str, text: str) -> SendMessageResponse:
         data = requests.get(self.get_url('sendMessage'), params={'chat_id': chat_id, 'text': text}).json()
         try:
             return SendMessageResponse(**data)

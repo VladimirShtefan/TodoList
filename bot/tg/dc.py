@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class Chat(BaseModel):
-    id: int
+    id: str
     first_name: str
     last_name: str
     username: str
