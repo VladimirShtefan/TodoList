@@ -4,7 +4,7 @@ from django.db.models import Q
 
 from bot.models import TgUser
 from bot.tg.client import TgClient
-from bot.tg.dc import GetUpdatesResponse, Message
+from bot.tg.dc import GetUpdatesResponse, Message, MessageFrom
 from goals.models import Goal, GoalCategory
 from todolist.settings import TOKEN_TELEGRAM_BOT
 
@@ -30,8 +30,9 @@ class Command(BaseCommand):
             b'set_name_goal': self._set_name_goal,
         }
 
-    def _check_user_existence(self, username: str, chat_id: str) -> TgUser:
-        tg_user, _ = self.tg_user.objects.get_or_create(tg_id=chat_id, username=username)
+    def _check_user_existence(self, user: MessageFrom, chat_id: str) -> TgUser:
+        tg_user, _ = self.tg_user.objects.get_or_create(tg_id=chat_id,
+                                                        username=user.username or user.first_name or user.id)
         return tg_user
 
     def handle(self, *args, **options):
@@ -43,11 +44,11 @@ class Command(BaseCommand):
                 for item in res.result:
                     offset = item.update_id + 1
                     chat_id = item.message.chat.id
-                    username = item.message.from_.username
-                    tg_user: TgUser = self._check_user_existence(username, chat_id)
+                    user = item.message.from_
+                    tg_user: TgUser = self._check_user_existence(user, chat_id)
 
                     if not tg_user.user_id:
-                        self.tg_client.send_message(chat_id=chat_id, text=f'Привет {username}')
+                        self.tg_client.send_message(chat_id=chat_id, text=f'Привет {user.username or user.first_name}')
                         verification_code = tg_user.generate_verification_code()
                         self.tg_client.send_message(chat_id=chat_id, text=f'Подтвердите, пожалуйста, свой аккаунт. '
                                                                           f'Для подтверждения необходимо ввести код: '

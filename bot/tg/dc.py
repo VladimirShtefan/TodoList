@@ -6,15 +6,14 @@ from pydantic import BaseModel, Field
 class Chat(BaseModel):
     id: str
     first_name: str
-    last_name: str
-    username: str
     type: str
 
 
 class MessageFrom(BaseModel):
     id: int
     is_bot: bool
-    username: str
+    username: str | None
+    first_name: str | None
 
 
 class Message(BaseModel):
