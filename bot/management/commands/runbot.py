@@ -1,13 +1,15 @@
+import redis
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 
-from bot.models import TgUser, Redis
+from bot.models import TgUser
 from bot.tg.client import TgClient
 from bot.tg.dc import GetUpdatesResponse, Message
 from goals.models import Goal, GoalCategory
 from todolist.settings import TOKEN_TELEGRAM_BOT
 
-redis_instance = Redis().redis
+
+redis_instance = redis.StrictRedis(host='redis')
 
 
 class Command(BaseCommand):

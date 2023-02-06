@@ -31,14 +31,3 @@ class TgUser(models.Model):
         self.verification_code = os.urandom(16).hex()
         self.save(update_fields=('verification_code',))
         return self.verification_code
-
-
-class Redis:
-    def __new__(cls):
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(Redis, cls).__new__(cls)
-        return cls.instance
-
-    @property
-    def redis(self):
-        return redis.StrictRedis(host='redis')
