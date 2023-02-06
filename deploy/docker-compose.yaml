@@ -33,10 +33,10 @@ services:
     command: redis-server
 
   telegram_bot:
-    build: .
+    image: ${DOCKER_HUB_USERNAME}/diplom:latest
+    restart: always
     env_file:
       - .env
-    restart: always
     environment:
       DB_HOST: postgres
     depends_on:
