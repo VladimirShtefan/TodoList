@@ -41,4 +41,4 @@ class Redis:
 
     @property
     def redis(self):
-        return redis.StrictRedis()
+        return redis.StrictRedis(host='redis')

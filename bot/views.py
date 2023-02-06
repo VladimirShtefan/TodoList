@@ -27,4 +27,3 @@ class VerificationCodeView(UpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         raise MethodNotAllowed(request.method)
-
