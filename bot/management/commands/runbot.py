@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
     def _check_user_existence(self, user: MessageFrom, chat_id: str) -> TgUser:
         tg_user, _ = self.tg_user.objects.get_or_create(tg_id=chat_id,
-                                                        username=user.username or user.first_name or user.id)
+                                                        username=user.id)
         return tg_user
 
     def handle(self, *args, **options):
