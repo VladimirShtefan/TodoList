@@ -5,20 +5,18 @@ from pydantic import BaseModel, Field
 
 class Chat(BaseModel):
     id: str
-    first_name: str
-    type: str
+    first_name: str | None
 
 
 class MessageFrom(BaseModel):
     id: int
-    is_bot: bool
     username: str | None
-    first_name: str | None
+    first_name: str
 
 
 class Message(BaseModel):
     message_id: int
-    from_: MessageFrom = Field(..., alias='from')
+    from_: MessageFrom = Field(..., alias='from') | None
     chat: Chat
     date: datetime
     text: str | None
@@ -30,7 +28,7 @@ class Message(BaseModel):
 
 class MessageInfo(BaseModel):
     update_id: int
-    message: Message
+    message: Message | None
 
 
 class GetUpdatesResponse(BaseModel):
