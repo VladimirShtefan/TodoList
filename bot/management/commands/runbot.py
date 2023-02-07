@@ -48,6 +48,10 @@ class Command(BaseCommand):
                     tg_user: TgUser = self._check_user_existence(user, chat_id)
 
                     if not tg_user.user_id:
+                        if item.message.text == '/start':
+                            self.tg_client.send_message(chat_id=chat_id,
+                                                        text='Привет я бот для работы с целями, '
+                                                             'для начала работы введите команду из доступных')
                         self.tg_client.send_message(chat_id=chat_id, text=f'Привет {user.username or user.first_name}')
                         verification_code = tg_user.generate_verification_code()
                         self.tg_client.send_message(chat_id=chat_id, text=f'Подтвердите, пожалуйста, свой аккаунт. '
