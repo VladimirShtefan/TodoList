@@ -17,7 +17,7 @@ from goals.serializers import GoalCategoryCreateSerializer, GoalCategorySerializ
 class CreateGoalsCategoryView(CreateAPIView):
     queryset = GoalCategory.objects.all()
     serializer_class = GoalCategoryCreateSerializer
-    permission_classes = (GoalCategoryPermissions, IsAuthenticated)
+    permission_classes = (IsAuthenticated, GoalCategoryPermissions)
 
 
 class GoalCategoryListView(ListAPIView):
@@ -44,7 +44,7 @@ class GoalCategoryListView(ListAPIView):
 class GoalCategoryView(RetrieveUpdateDestroyAPIView):
     queryset = GoalCategory.objects.all()
     serializer_class = GoalCategorySerializer
-    permission_classes = (GoalCategoryPermissions, IsAuthenticated)
+    permission_classes = (IsAuthenticated, GoalCategoryPermissions)
 
     def get_queryset(self):
         return GoalCategory.objects.prefetch_related('board__participants__user').filter(
@@ -64,7 +64,7 @@ class GoalCategoryView(RetrieveUpdateDestroyAPIView):
 class CreateGoalView(CreateAPIView):
     queryset = Goal.objects.all()
     serializer_class = GoalCreateSerializer
-    permission_classes = (GoalPermissions, IsAuthenticated)
+    permission_classes = (IsAuthenticated, GoalPermissions)
 
 
 class GoalsListView(ListAPIView):
@@ -79,7 +79,6 @@ class GoalsListView(ListAPIView):
     search_fields = ('title', 'description')
 
     def get_queryset(self):
-        print(1)
         return Goal.objects.prefetch_related('category').filter(
             Q(category__board__participants__user_id=self.request.user.id) &
             ~Q(status=Goal.Status.archived) &
@@ -90,7 +89,7 @@ class GoalsListView(ListAPIView):
 class GoalView(RetrieveUpdateDestroyAPIView):
     queryset = Goal.objects.all()
     serializer_class = GoalSerializer
-    permission_classes = (GoalPermissions, IsAuthenticated)
+    permission_classes = (IsAuthenticated, GoalPermissions)
 
     def get_queryset(self):
         return Goal.objects.prefetch_related('category').filter(
@@ -104,7 +103,7 @@ class GoalView(RetrieveUpdateDestroyAPIView):
 class CreateCommentView(CreateAPIView):
     queryset = GoalComment.objects.all()
     serializer_class = GoalCommentCreateSerializer
-    permission_classes = (GoalCommentPermissions, IsAuthenticated)
+    permission_classes = (IsAuthenticated, GoalCommentPermissions)
 
 
 class CommentsListView(ListAPIView):
@@ -130,7 +129,7 @@ class CommentsListView(ListAPIView):
 class CommentView(RetrieveUpdateDestroyAPIView):
     queryset = GoalComment.objects.all()
     serializer_class = GoalCommentSerializer
-    permission_classes = (GoalCommentPermissions, IsAuthenticated)
+    permission_classes = (IsAuthenticated, GoalCommentPermissions)
 
     def get_queryset(self):
         return GoalComment.objects.prefetch_related('goal').filter(
@@ -165,11 +164,11 @@ class BoardsListView(ListAPIView):
 class BoardView(RetrieveUpdateDestroyAPIView):
     queryset = Board.objects.all()
     serializer_class = BoardSerializer
-    permission_classes = (BoardPermissions, IsAuthenticated)
+    permission_classes = (IsAuthenticated, BoardPermissions)
 
     def get_queryset(self):
         return Board.objects.prefetch_related('participants').filter(
-            Q(is_deleted=False) & Q(participants__user_id=self.request.user.id)
+            is_deleted=False
         )
 
     def perform_destroy(self, instance: Board):

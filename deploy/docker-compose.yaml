@@ -27,6 +27,25 @@ services:
     environment:
       DB_HOST: postgres
 
+  redis:
+    image: redis:7.0.8-alpine
+    restart: always
+    command: redis-server
+
+  telegram_bot:
+    image: ${DOCKER_HUB_USERNAME}/diplom:latest
+    restart: always
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+    depends_on:
+      api:
+        condition: service_started
+      redis:
+        condition: service_started
+    command: python3 manage.py runbot
+
   collect_static:
     image: ${DOCKER_HUB_USERNAME}/diplom:latest
     env_file:
@@ -42,7 +61,7 @@ services:
 
 
   front:
-    image: sermalenk/skypro-front:lesson-37
+    image: sermalenk/skypro-front:lesson-38
     restart: always
     ports:
       - "80:80"
