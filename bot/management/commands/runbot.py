@@ -40,9 +40,9 @@ class Command(BaseCommand):
 
         while True:
             res: GetUpdatesResponse = self.tg_client.get_updates(offset=offset)
-            if res:
-                for item in res.result:
-                    offset = item.update_id + 1
+            for item in res.result:
+                offset = item.update_id + 1
+                if item.message:
                     chat_id = item.message.chat.id
                     user = item.message.from_
                     tg_user: TgUser = self._check_user_existence(user, chat_id)

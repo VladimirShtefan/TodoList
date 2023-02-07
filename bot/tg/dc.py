@@ -16,7 +16,7 @@ class MessageFrom(BaseModel):
 
 class Message(BaseModel):
     message_id: int
-    from_: MessageFrom = Field(..., alias='from') | None
+    from_: MessageFrom | None = Field(..., alias='from')
     chat: Chat
     date: datetime
     text: str | None
