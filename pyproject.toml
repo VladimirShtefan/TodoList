@@ -25,6 +25,8 @@ redis = "^4.4.2"
 
 [tool.poetry.group.dev.dependencies]
 ansible-vault = "^2.1.0"
+pytest-factoryboy = "^2.5.1"
+pytest-django = "^4.5.2"
 
 [build-system]
 requires = ["poetry-core"]

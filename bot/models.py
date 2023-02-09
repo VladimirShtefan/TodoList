@@ -1,5 +1,4 @@
 import os
-import redis
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -27,7 +26,11 @@ class TgUser(models.Model):
     def __str__(self):
         return self.username
 
-    def generate_verification_code(self):
+    def generate_verification_code(self) -> str:
+        """
+        Генерация проверочного кода для телеграм бота
+        :return:
+        """
         self.verification_code = os.urandom(16).hex()
         self.save(update_fields=('verification_code',))
         return self.verification_code
