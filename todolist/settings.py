@@ -109,10 +109,8 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'openapi': '3.0.0',
     'TITLE': 'TODOlist',
     'DESCRIPTION': '',
-    'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
 
