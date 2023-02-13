@@ -86,3 +86,15 @@ docker-compose up front
 ```sh
 docker-compose up --build -d
 ```
+
+## Testing
+
+### 1. Запустить образ postgres из корня проекта.
+```sh
+docker-compose up postgres
+```
+
+### 2. Запустить тесты
+```sh
+pytest
+```

@@ -212,6 +212,9 @@ LOGGING = {
         },
         'faker.factory': {
             'level': 'INFO',
+        },
+        'factory.generate': {
+            'level': 'INFO',
         }
     }
 }

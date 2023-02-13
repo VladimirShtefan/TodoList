@@ -3,7 +3,7 @@ from factory import Faker, fuzzy, SubFactory, post_generation
 from factory.django import DjangoModelFactory
 from pytest_factoryboy import register
 
-from goals.models import BoardParticipant, Board
+from goals.models import BoardParticipant
 
 
 @register

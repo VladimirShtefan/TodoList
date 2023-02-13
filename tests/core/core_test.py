@@ -3,6 +3,8 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 
+from core.serializers import UserLoginSerializer, UserProfileSerializer
+
 
 @pytest.mark.django_db
 class TestLogin:
@@ -15,13 +17,7 @@ class TestLogin:
                                                    'password': password
                                                    })
         assert response.status_code == status.HTTP_201_CREATED
-        assert response.json() == {
-            'id': 1,
-            'username': user.username,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email,
-        }
+        assert response.json() == UserLoginSerializer(user).data
 
     def test_login_failure(self, api_client, user_factory):
         user = user_factory.build()
@@ -39,40 +35,49 @@ class TestSignUp:
     def test_signup_successfully(self, api_client, faker):
         username = faker.user_name()
         password = faker.password()
-        response = api_client.post(self.url, data={'username': username,
-                                                   'password': password,
-                                                   'password_repeat': password
-                                                   })
+        user = {
+            'username': username,
+            'password': password,
+            'password_repeat': password
+        }
+        response = api_client.post(self.url, data=user)
         assert response.status_code == status.HTTP_201_CREATED
+        assert response.json().get('username') == username
 
     def test_signup_failure(self, api_client, faker):
         username = faker.user_name()
         password = faker.password()
         password_repeat = faker.password()
-        response = api_client.post(self.url, data={'username': username,
-                                                   'password': password,
-                                                   'password_repeat': password_repeat,
-                                                   })
+        user = {
+            'username': username,
+            'password': password,
+            'password_repeat': password_repeat,
+        }
+        response = api_client.post(self.url, data=user)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == {'password_repeat': ['Пароли должны совпадать']}
 
     def test_password_validation(self, api_client, faker):
         username = faker.user_name()
         password = faker.password(length=4)
-        response = api_client.post(self.url, data={'username': username,
-                                                   'password': password,
-                                                   'password_repeat': password,
-                                                   })
+        user = {
+            'username': username,
+            'password': password,
+            'password_repeat': password
+        }
+        response = api_client.post(self.url, data=user)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == {
             'password': ['Введённый пароль слишком короткий. Он должен содержать как минимум 8 символов.']
         }
 
         password = '12345678'
-        response = api_client.post(self.url, data={'username': username,
-                                                   'password': password,
-                                                   'password_repeat': password,
-                                                   })
+        user = {
+            'username': username,
+            'password': password,
+            'password_repeat': password
+        }
+        response = api_client.post(self.url, data=user)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == {'password': ['Введённый пароль слишком широко распространён.',
                                                 'Введённый пароль состоит только из цифр.']}
@@ -85,13 +90,7 @@ class TestUserProfile:
     def test_get_profile_successfully(self, api_client, login_user, current_user):
         response = login_user.get(self.url)
         assert response.status_code == status.HTTP_200_OK
-        assert response.json() == {
-            'id': current_user.id,
-            'username': current_user.username,
-            'first_name': current_user.first_name,
-            'last_name': current_user.last_name,
-            'email': current_user.email,
-        }
+        assert response.json() == UserProfileSerializer(current_user).data
 
     def test_get_profile_failure(self, api_client):
         response = api_client.get(self.url)
