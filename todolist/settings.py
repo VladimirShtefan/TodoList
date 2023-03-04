@@ -111,7 +111,6 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     'TITLE': 'TODOlist',
     'DESCRIPTION': '',
-    'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
 
@@ -207,6 +206,15 @@ LOGGING = {
         '': {
             'level': 'DEBUG',
             'handlers': ['console', 'file']
+        },
+        'faker.providers': {
+            'level': 'INFO',
+        },
+        'faker.factory': {
+            'level': 'INFO',
+        },
+        'factory.generate': {
+            'level': 'INFO',
         }
     }
 }

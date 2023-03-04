@@ -10,7 +10,12 @@ from core.models import User
 class GoalCategoryCreateSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
-    def validate_board(self, board: Board):
+    def validate_board(self, board: Board) -> Board:
+        """
+        Валидация поля board
+        :param board:
+        :return:
+        """
         if board.is_deleted:
             raise ValidationError('Нельзя создать категорию для доски в архиве')
         if not BoardParticipant.objects.filter(
@@ -40,7 +45,12 @@ class GoalCategorySerializer(serializers.ModelSerializer):
 class GoalCreateSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
-    def validate_category(self, category: GoalCategory):
+    def validate_category(self, category: GoalCategory) -> GoalCategory:
+        """
+        Валидация поля category
+        :param category:
+        :return:
+        """
         if category.is_deleted:
             raise ValidationError('Нельзя создать цель для категории в архиве')
         if not BoardParticipant.objects.filter(
@@ -69,7 +79,12 @@ class GoalSerializer(serializers.ModelSerializer):
 class GoalCommentCreateSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
-    def validate_goal(self, goal: Goal):
+    def validate_goal(self, goal: Goal) -> Goal:
+        """
+        Валидация поля goal
+        :param goal:
+        :return:
+        """
         if goal.category.is_deleted:
             raise ValidationError('Нельзя создать комментарий для категории в архиве')
         if not BoardParticipant.objects.filter(
@@ -98,7 +113,12 @@ class GoalCommentSerializer(serializers.ModelSerializer):
 class BoardCreateSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
-    def create(self, validated_data):
+    def create(self, validated_data: dict) -> Board:
+        """
+        Создание доски после валидации данных с ролью владелец и текущим пользователем
+        :param validated_data:
+        :return:
+        """
         with transaction.atomic():
             user = validated_data.pop('user')
             board = Board.objects.create(**validated_data)
@@ -129,21 +149,33 @@ class BoardSerializer(serializers.ModelSerializer):
     participants = BoardParticipantSerializer(many=True)
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
-    def validate_participants(self, participants):
+    def validate_participants(self, participants: list[dict]) -> list[dict]:
+        """
+        Валидация участников доски, для исключения изменения владельца доски
+        :param participants:
+        :return:
+        """
         for participant in participants:
             if participant['role'] == BoardParticipant.Role.owner:
                 raise ValidationError('Нельзя изменить владельца доски')
         return participants
 
-    def update(self, instance: Board, validated_data):
+    def update(self, instance: Board, validated_data: dict) -> Board:
+        """
+        Обновляет данные доски, перебирает текущих участников у которых есть доступ, если их нет в переданных данных,
+        исключает их, заменяет роли при необходимости и меняет заголовок.
+        :param instance:
+        :param validated_data:
+        :return:
+        """
         owner: User = validated_data.pop('user')
-        participants = validated_data.pop('participants')
+        participants: list[dict] = validated_data.pop('participants')
         actual_participants: QuerySet[BoardParticipant] = instance.participants.exclude(user=owner)
         new_participants_data: dict = {participant['user'].id: participant for participant in participants}
         with transaction.atomic():
             for participant in actual_participants:
-                participant_id = participant.user.id
-                participant_role = participant.role
+                participant_id: int = participant.user.id
+                participant_role: str = participant.role
 
                 if participant_id not in new_participants_data:
                     participant.delete()

@@ -4,7 +4,10 @@ from goals.models import BoardParticipant, Board, GoalCategory, Goal, GoalCommen
 
 
 class BoardPermissions(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj: Board):
+    def has_object_permission(self, request, view, obj: Board) -> bool:
+        """
+        Return `True` if permission is granted, `False` otherwise.
+        """
         if request.method in permissions.SAFE_METHODS:
             return BoardParticipant.objects.filter(user_id=request.user.id, board_id=obj.id).exists()
         return BoardParticipant.objects.filter(user_id=request.user.id, board_id=obj.id,
@@ -13,7 +16,10 @@ class BoardPermissions(permissions.BasePermission):
 
 
 class GoalCategoryPermissions(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj: GoalCategory):
+    def has_object_permission(self, request, view, obj: GoalCategory) -> bool:
+        """
+        Return `True` if permission is granted, `False` otherwise.
+        """
         if request.method in permissions.SAFE_METHODS:
             return BoardParticipant.objects.filter(user_id=request.user.id, board_id=obj.board.id).exists()
         return BoardParticipant.objects.filter(
@@ -23,7 +29,10 @@ class GoalCategoryPermissions(permissions.BasePermission):
 
 
 class GoalPermissions(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj: Goal):
+    def has_object_permission(self, request, view, obj: Goal) -> bool:
+        """
+        Return `True` if permission is granted, `False` otherwise.
+        """
         if request.method in permissions.SAFE_METHODS:
             return BoardParticipant.objects.filter(user_id=request.user.id, board_id=obj.category.board.id).exists()
         return BoardParticipant.objects.filter(
@@ -33,7 +42,10 @@ class GoalPermissions(permissions.BasePermission):
 
 
 class GoalCommentPermissions(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj: GoalComment):
+    def has_object_permission(self, request, view, obj: GoalComment) -> bool:
+        """
+        Return `True` if permission is granted, `False` otherwise.
+        """
         if request.method in permissions.SAFE_METHODS:
             return BoardParticipant.objects.filter(user_id=request.user.id,
                                                    board_id=obj.goal.category.board.id

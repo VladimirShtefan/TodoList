@@ -34,7 +34,11 @@ class GoalCategoryListView(ListAPIView):
     search_fields = ('title',)
     ordering = ('title',)
 
-    def get_queryset(self):
+    def get_queryset(self) -> list[GoalCategory]:
+        """
+        Фильтрует категории
+        :return:
+        """
         return GoalCategory.objects.prefetch_related('board__participants__user').filter(
             board__participants__user_id=self.request.user.id,
             is_deleted=False
@@ -46,13 +50,22 @@ class GoalCategoryView(RetrieveUpdateDestroyAPIView):
     serializer_class = GoalCategorySerializer
     permission_classes = (IsAuthenticated, GoalCategoryPermissions)
 
-    def get_queryset(self):
+    def get_queryset(self) -> list[GoalCategory]:
+        """
+        Фильтрует категории
+        :return:
+        """
         return GoalCategory.objects.prefetch_related('board__participants__user').filter(
             board__participants__user_id=self.request.user.id,
             is_deleted=False
         )
 
-    def perform_destroy(self, instance):
+    def perform_destroy(self, instance: GoalCategory) -> GoalCategory:
+        """
+        При запросе DELETE не удаляет из базы, а ставит флаг is_deleted
+        :param instance:
+        :return:
+        """
         with transaction.atomic():
             instance.is_deleted = True
             instance.save(update_fields=('is_deleted',))
@@ -91,7 +104,11 @@ class GoalView(RetrieveUpdateDestroyAPIView):
     serializer_class = GoalSerializer
     permission_classes = (IsAuthenticated, GoalPermissions)
 
-    def get_queryset(self):
+    def get_queryset(self) -> Goal:
+        """
+        Фильтрует цели
+        :return:
+        """
         return Goal.objects.prefetch_related('category').filter(
             Q(category__board__participants__user_id=self.request.user.id) &
             ~Q(status=Goal.Status.archived) &
@@ -118,7 +135,11 @@ class CommentsListView(ListAPIView):
     ordering_fields = ('created',)
     ordering = ('-created',)
 
-    def get_queryset(self):
+    def get_queryset(self) -> GoalComment:
+        """
+        Фильтрует комментарии
+        :return:
+        """
         return GoalComment.objects.prefetch_related('goal').filter(
             Q(goal__category__board__participants__user_id=self.request.user.id)
             & ~Q(goal__status=Goal.Status.archived)
@@ -131,7 +152,11 @@ class CommentView(RetrieveUpdateDestroyAPIView):
     serializer_class = GoalCommentSerializer
     permission_classes = (IsAuthenticated, GoalCommentPermissions)
 
-    def get_queryset(self):
+    def get_queryset(self) -> GoalComment:
+        """
+        Фильтрует комментарии
+        :return:
+        """
         return GoalComment.objects.prefetch_related('goal').filter(
             Q(goal__category__board__participants__user_id=self.request.user.id)
             & ~Q(goal__status=Goal.Status.archived)
@@ -155,7 +180,11 @@ class BoardsListView(ListAPIView):
     ordering_fields = ('title',)
     ordering = ('title',)
 
-    def get_queryset(self):
+    def get_queryset(self) -> Board:
+        """
+        Фильтрует доски
+        :return:
+        """
         return Board.objects.prefetch_related('participants').filter(
             Q(is_deleted=False) & Q(participants__user_id=self.request.user.id)
         )
@@ -166,12 +195,21 @@ class BoardView(RetrieveUpdateDestroyAPIView):
     serializer_class = BoardSerializer
     permission_classes = (IsAuthenticated, BoardPermissions)
 
-    def get_queryset(self):
+    def get_queryset(self) -> Board:
+        """
+        Фильтрует доски
+        :return:
+        """
         return Board.objects.prefetch_related('participants').filter(
             is_deleted=False
         )
 
-    def perform_destroy(self, instance: Board):
+    def perform_destroy(self, instance: Board) -> Board:
+        """
+        При запросе DELETE не удаляет из базы, а ставит флаг is_deleted
+        :param instance:
+        :return:
+        """
         with transaction.atomic():
             instance.is_deleted = True
             instance.save()

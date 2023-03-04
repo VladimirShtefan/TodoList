@@ -10,7 +10,8 @@
 - [Postgresql](https://www.postgresql.org/) - The World's Most Advanced Open Source Relational Database.
 - [Djoser](https://djoser.readthedocs.io/en/latest/getting_started.html) - REST implementation of Django authentication system. djoser library provides a set of Django Rest Framework views to handle basic actions such as registration, login, logout, password reset and account activation. It works with custom user model.
 - [Drf-spectacular](https://drf-spectacular.readthedocs.io/en/latest/) - Sane and flexible OpenAPI 3.0 schema generation for Django REST framework.
-
+- [Pydantic](https://docs.pydantic.dev/) - Data validation and settings management using Python type annotations.
+- [Redis](https://redis.io/) - The open source, in-memory data store used by millions of developers as a database, cache, streaming engine, and message broker.
 
 ## Installation
 
@@ -48,6 +49,7 @@ DEBUG=True
 DOCKER_HUB_USERNAME=todolist
 OAUTH2_KEY=111111
 OAUTH2_SECRET=1111111
+TOKEN_TELEGRAM_BOT=727257272:AAHLdsfdsfdsfdsfdsf
 ```
 
 ### 4. Запустить образ postgres из корня проекта.
@@ -65,7 +67,34 @@ docker-compose up postgres
 ./manage.py runserver 0.0.0.0:8000  
 ```
 
-### 7. Для локального запуска всех образов, выполнить из корня проекта.
+### 7. Запустить образ redis из корня проекта.
+```sh
+docker-compose up redis
+```
+
+### 8. Запустить telegram-bot:
+```sh
+./manage.py runbot
+```
+
+### 9. Запустить образ frontend:
+```sh
+docker-compose up front
+```
+
+### 10. Для локального запуска всех образов, выполнить из корня проекта.
 ```sh
 docker-compose up --build -d
+```
+
+## Testing
+
+### 1. Запустить образ postgres из корня проекта.
+```sh
+docker-compose up postgres
+```
+
+### 2. Запустить тесты
+```sh
+pytest
 ```
